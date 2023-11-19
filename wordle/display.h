@@ -20,7 +20,7 @@
 #define GRAY_CODE "\033[0;90m"
 #define BOLD_ON_CODE "\e[1m"
 #define BOLD_RESET "\e[0m"
-#define RANDOM_NUM_BUCKETS 7
+#define RANDOM_NUM_BUCKETS 3
 
 std::string getColor(int color) {
     if (color == WHITE) {
@@ -78,7 +78,9 @@ void enterKeyEvent(std::istream& is, std::ostream& os) {
     os << "Press [enter] to continue" << std::endl;
     std::string input;
     std::getline(is, input);
-    
+    while (input.length() != 0) {
+        std::getline(is, input);
+    }
 }
 
 void instrMenu(std::ostream& os, std::istream& is) {
@@ -104,7 +106,6 @@ void instrMenu(std::ostream& os, std::istream& is) {
     os << BOLD_ON_CODE << "U" << BOLD_RESET << " is not in the word in any spot." << std::endl;
     os << std::endl;
     os << std::endl;
-    enterKeyEvent(is, os);
 }
 
 int optionMenu(std::ostream& os, std::istream& is) {
@@ -120,14 +121,14 @@ int optionMenu(std::ostream& os, std::istream& is) {
     os << std::endl;
     os << std::endl;
  
-    std::cout << "Select an option: " << std::endl;
+    os << "Select an option: " << std::endl;
     std::string opt_str;
     std::getline(is, opt_str);
     int opt = std::stoi(opt_str);
     return opt;
 }
 
-std::string toUpper(std::string in) {
+std::string toUpper(std::string& in) {
     std::string result;
     for (char c : in) {
         result += toupper(c);
@@ -137,52 +138,50 @@ std::string toUpper(std::string in) {
 }
 
 void wordleGame(std::ostream& os, std::istream& is, std::vector<std::string> words, std::vector<std::string> allowed, Stat* wStats) {
-    std::string chosenWordle = genWordle(words);
+    std::string chosenWordle = genWordle(words, RANDOM_NUM_BUCKETS);
     os << chosenWordle << std::endl;
-    wStats->timesPlayed++;
     bool win = false;
     int attempts = 0;
     while (attempts < 6 && !win) {
         std::string guess;
         os << "Enter your guess:" << std::endl;
         std::getline(is, guess);
-        bool isValid = checkValidGuess(allowed, guess);
+        bool isValid = checkValidGuess(allowed, words, guess);
         if (!isValid) {
             os << "You entered an invalid guess" << std::endl;
             os << "Guess " << guess << " not a valid guess or length != 5" << std::endl;
         } else {
-            std::vector<int> colors = highlightGuess(guess, chosenWordle);
-            displayGuess(os, guess, colors);
-            writeOutput(guess, colors);
+            std::vector<int> colors;
             if (checkWin(chosenWordle, guess)) {
                 win = true;
+                colors = {GREEN, GREEN, GREEN, GREEN, GREEN};
+            } else {
+                colors = highlightGuess(guess, chosenWordle);
             }
 
+            displayGuess(os, guess, colors);
+            writeOutput(guess, colors);
             attempts++;
         }
     }
 
     if (win) {
-        os << std::endl << "Splendid!" << std::endl;
+        os << std::endl << std::endl << "Splendid!" << std::endl << std::endl;
         wStats->curStreak += 1;
-        wStats->longestStreak += 1;
+        wStats->wins += 1;
     } else {
-        if (wStats->curStreak > 0) {
-            if (wStats->curStreak > wStats->longestStreak) {
-                wStats->longestStreak = wStats->curStreak;
-            }
-
-            wStats->curStreak = 0;
+        if (wStats->curStreak > wStats->longestStreak) {
+            wStats->longestStreak = wStats->curStreak;
         }
 
+        wStats->curStreak = 0;
         os << "The word was: " << toUpper(chosenWordle) << std::endl;
         os << std::endl << std::endl << "Better luck next time!" << std::endl << std::endl;
     }
 
-
-    wStats->save();
+    wStats->timesPlayed++;
     WordEntry ent(chosenWordle, attempts, win);
     wStats->wEntries.push_back(ent);
-    enterKeyEvent(is, os);
+    wStats->save();
 }
 #endif

@@ -60,7 +60,7 @@ void displayGuess(std::ostream& os, std::string guess, std::vector<int> colors) 
     // Letter part
     for (int i = 0; i < guess.length(); i++) {
         std::string color_code = getColor(colors[i]);
-        os << color_code << "|" << std::setw(1) << "" << std::setw(2) << guess[i] << "" << "|" << RESET_CODE;
+        os << color_code << "|" << std::setw(1) << "" << std::left << std::setw(2) << guess[i] << "|" << RESET_CODE;
     }
 
     os << std::endl;
@@ -79,7 +79,7 @@ void displayGuess(std::ostream& os, std::string guess, std::vector<int> colors) 
 std::vector<std::vector<std::string>> readWordleOutput() {
     std::ifstream ifs;
     std::vector<std::vector<std::string>> wleOutput;
-    ifs.open("C:\\Users\\mohan\\Documents\\cse024\\exercise-1\\wordle\\interface.txt");
+    ifs.open("../wordle/interface.txt");
 
     if (!ifs.is_open()) {
         return wleOutput;
@@ -98,25 +98,25 @@ std::vector<std::vector<std::string>> readWordleOutput() {
     }
 
     ifs.close();
-
     return wleOutput;
 }
 
 void display(std::ostream& os) {
     std::vector<std::vector<std::string>> wordleOutput = readWordleOutput();
     int char_counter = 0;
-    for (int kl : KEYBOARD_LEN) {
+    for (int j = 0; j < 3; j++) {
         std::string kline;
         std::vector<int> line_colors;
+        int kl = KEYBOARD_LEN[j];
         for (int i = 0; i < kl; i++) {
-            char c = KBD_CHARS[i];
+            char c = KBD_CHARS[char_counter + i];
             int index = -1;
             int color = WHITE;
 
             for (int i = 0; i < wordleOutput.size() && index == -1; i++) {
                 std::vector<std::string> hltOutput = wordleOutput[i];
                 char cur = hltOutput[0][0];
-                if (c == cur) {
+                if (tolower(c) == cur) {
                     index = i;
                     color = std::stoi(hltOutput[1]);
                 }
@@ -126,6 +126,7 @@ void display(std::ostream& os) {
             line_colors.push_back(color);
         }
 
+        char_counter += kl;
         displayGuess(os, kline, line_colors);
     }
 }

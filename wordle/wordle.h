@@ -19,10 +19,10 @@ int binarySearch(std::vector<std::string> validWords, std::string target) {
     int left = 0;
     int right = validWords.size() - 1;
     while (left <= right) {
-        int mid = (left + right) / 2;
-        if (validWords[mid].compare(target) == 0) {
+        int mid = left + (right - left) / 2;
+        if (validWords[mid] == target) {
             return mid;
-        } else if (validWords[mid].compare(target) > 0) {
+        } else if (validWords[mid] > target) {
             right = mid - 1;
         } else {
             left = mid + 1;
@@ -36,13 +36,14 @@ bool checkWin(std::string wordle, std::string guess) {
     return wordle == guess;
 }
 
-bool checkValidGuess(std::vector<std::string> validGuesses, std::string guess) {
+bool checkValidGuess(std::vector<std::string> validGuesses, std::vector<std::string> words, std::string guess) {
     if (guess.length() != 5) {
         return false;
     }
 
-    int idx = binarySearch(validGuesses, guess);
-    return idx != -1;
+    int idx1 = binarySearch(validGuesses, guess);
+    int idx2 = binarySearch(words, guess);
+    return idx1 != -1 || idx2 != -1;
 }
 
 // main algorithm for coloring the guess made, based on the chosen wordle
@@ -62,7 +63,6 @@ std::vector<int> highlightGuess(std::string guess, std::string chosenWordle) {
             }
         }
 
-
         // If the character is not found, highlight the char gray
         if (!found) {
             colors.push_back(GRAY);
@@ -79,20 +79,15 @@ std::string genWordle(std::vector<std::string> wordList, int n) {
     int sampleSize = len / n;
     std::vector<std::string> randWords;
     for (int i = 0; i < n; i++) {
-        int randIdx = i * sampleSize + (rand() % sampleSize);
-        randWords.push_back(wordList[randIdx]);
+        int r = rand() % n;
+        randWords.push_back(wordList[r]);
     }
 
-    int selectRandIdx = rand() % randWords.size(); 
+    int selectRandIdx = randWords.size() / 2;
     return randWords[selectRandIdx];
 }
 
-std::string genWordle(std::vector<std::string> wordList) {
-    int randIdx = rand() % wordList.size();
-    return wordList[randIdx];
-}
-
-void loadWords(std::vector<std::string> words, std::vector<std::string> allowed) {
+void loadWords(std::vector<std::string>& words, std::vector<std::string>& allowed) {
     std::ifstream ifs1;
     ifs1.open(VALID_WORDS_FILE);
 
@@ -108,7 +103,7 @@ void loadWords(std::vector<std::string> words, std::vector<std::string> allowed)
     ifs1.close();
 
     std::ifstream ifs2;
-    ifs2.open(VALID_GUESSES_FILE, std::fstream::trunc);
+    ifs2.open(VALID_GUESSES_FILE);
     if (!ifs2.is_open()) {
         return;
     }

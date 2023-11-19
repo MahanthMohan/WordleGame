@@ -1,5 +1,0 @@
-tPlayed,0
-avgAttempts,0
-winPercent,0
-curStreak,0
-longStreak,0

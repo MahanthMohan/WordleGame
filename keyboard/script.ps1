@@ -1,6 +1,5 @@
 function run() {
-    g++ main.cpp -o -SuppressWarnings keyboard
-    compile("keyboard")
+    g++ main.cpp -o keyboard
     .\keyboard
 }
 
