@@ -33,12 +33,13 @@ struct WordEntry {
     }
 };
 
-struct Stat {
-    int timesPlayed;
-    int wins;
-    int curStreak;
-    int longestStreak;
-    std::vector<WordEntry> wEntries;
+struct Stat {    
+    public:
+        int timesPlayed;
+        int wins;
+        int curStreak;
+        int longestStreak;
+        std::vector<WordEntry> wEntries;
     
     Stat() {
         timesPlayed = 0;
@@ -53,7 +54,7 @@ struct Stat {
         os << std::setfill('=') << std::setw(lWidth) << "" << std::endl << std::setfill(' ');
         os << std::setfill(' ') << std::setw(4) << "" << std::setw(lWidth - 4) << "STATISTICS SUMMARY" << std::endl;
         os << std::setfill('=') << std::setw(lWidth) << "" << std::endl << std::setfill(' ');
-        os << std::setw(lWidth) << std::setfill(' ') << std::left << "Times Played:" << std::right << timesPlayed << std::endl;
+        os << std::setw(14) << std::setfill(' ') << std::left << "Times Played:" << std::setw(lWidth - 14) << std::right << timesPlayed << std::endl;
 
         int sumAttempts = 0;
         for (auto& e : wEntries) {
@@ -61,11 +62,11 @@ struct Stat {
         }
 
         int avgAttempts = sumAttempts / wEntries.size();
-        os << std::setw(lWidth) << std::setfill(' ') << std::left << "Average Attempts:" << std::right << avgAttempts << std::endl;
+
+        os << std::setw(18) << std::setfill(' ') << std::left << "Average Attempts:" << std::setw(lWidth - 18) << std::right << avgAttempts << std::endl;
         float winPerc = ((float) wins * 100) / wEntries.size();
-        os << std::setw(lWidth) << std::setfill(' ') << std::left << "Win Percentage:" << std::right << std::setprecision(3) << winPerc << "%" << std::endl;
-        os << std::setw(lWidth) << std::setfill(' ') << std::left << "Current Streak:" << std::right << curStreak << std::endl;
-        os << std::setw(lWidth) << std::setfill(' ') << std::left << "Longest Streak:" << std::right << longestStreak << std::endl;
+        os << std::setw(16) << std::setfill(' ') << std::left << "Current Streak:" << std::setw(lWidth - 16) << std::right << curStreak << std::endl;
+        os << std::setw(16) << std::setfill(' ') << std::left << "Longest Streak:" << std::setw(lWidth - 16) << std::right << longestStreak << std::endl;
 
         os << std::endl << std::endl;
 
@@ -90,13 +91,6 @@ struct Stat {
 
         std::string statData;
         ifs >> statData;
-        if (statData.length() == 0) {
-            timesPlayed = 0;
-            wins = 0;
-            curStreak = 0;
-            longestStreak = 0;
-            wEntries = *(new std::vector<WordEntry>()); 
-        }
 
         std::istringstream ios(statData);
         std::string line;
@@ -145,7 +139,11 @@ struct Stat {
 
     void reset() {
         std::ofstream ofs;
-        ofs.open("statistics.txt", std::fstream::trunc);
+        ofs.open("statistics.txt");
+        ofs << "tPlayed" << "," << 0 << std::endl;
+        ofs << "wins" << "," << 0 << std::endl;
+        ofs << "curStreak" << "," << 0 << std::endl;
+        ofs << "longStreak" << "," << 0 << std::endl;
         ofs.close();
         curStreak = 0;
         longestStreak = 0;

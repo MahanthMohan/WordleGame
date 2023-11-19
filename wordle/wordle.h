@@ -3,6 +3,7 @@
 #include <random>
 #include <iostream>
 #include <fstream>
+#include <time.h>
 #include "display.h"
 #define WHITE 1
 #define YELLOW 2
@@ -75,16 +76,17 @@ std::vector<int> highlightGuess(std::string guess, std::string chosenWordle) {
 // Samples a random word from the words list, in buckets
 // and then returns a random word from the chosen list.
 std::string genWordle(std::vector<std::string> wordList, int n) {
-    int len = wordList.size();
-    int sampleSize = len / n;
-    std::vector<std::string> randWords;
-    for (int i = 0; i < n; i++) {
-        int r = rand() % n;
-        randWords.push_back(wordList[r]);
+    std::vector<std::string> wordles;
+    // seed the random gen based on time
+    srand(time(NULL));
+    int i = 0;
+    while (i < n) {
+        int randIdx = rand() % wordList.size();
+        wordles.push_back(wordList[randIdx]);
+        i++;
     }
-
-    int selectRandIdx = randWords.size() / 2;
-    return randWords[selectRandIdx];
+    
+    return wordles[rand() % wordles.size()];
 }
 
 void loadWords(std::vector<std::string>& words, std::vector<std::string>& allowed) {

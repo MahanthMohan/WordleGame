@@ -20,7 +20,7 @@
 #define GRAY_CODE "\033[0;90m"
 #define BOLD_ON_CODE "\e[1m"
 #define BOLD_RESET "\e[0m"
-#define RANDOM_NUM_BUCKETS 3
+#define NUM_RAND_WDS 15
 
 std::string getColor(int color) {
     if (color == WHITE) {
@@ -138,8 +138,7 @@ std::string toUpper(std::string& in) {
 }
 
 void wordleGame(std::ostream& os, std::istream& is, std::vector<std::string> words, std::vector<std::string> allowed, Stat* wStats) {
-    std::string chosenWordle = genWordle(words, RANDOM_NUM_BUCKETS);
-    os << chosenWordle << std::endl;
+    std::string chosenWordle = genWordle(words, NUM_RAND_WDS);
     bool win = false;
     int attempts = 0;
     while (attempts < 6 && !win) {
@@ -168,12 +167,12 @@ void wordleGame(std::ostream& os, std::istream& is, std::vector<std::string> wor
     if (win) {
         os << std::endl << std::endl << "Splendid!" << std::endl << std::endl;
         wStats->curStreak += 1;
-        wStats->wins += 1;
-    } else {
         if (wStats->curStreak > wStats->longestStreak) {
             wStats->longestStreak = wStats->curStreak;
         }
-
+        
+        wStats->wins += 1;
+    } else {
         wStats->curStreak = 0;
         os << "The word was: " << toUpper(chosenWordle) << std::endl;
         os << std::endl << std::endl << "Better luck next time!" << std::endl << std::endl;

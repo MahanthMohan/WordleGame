@@ -7,7 +7,7 @@ int main() {
     while (changed) {
         system("cls");
         display(std::cout);
-        _sleep(4000);
+        _sleep(3000);
     }
     
     return 0;
