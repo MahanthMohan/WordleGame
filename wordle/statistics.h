@@ -12,6 +12,12 @@ struct WordEntry {
     int attempts;
     bool win;
 
+    WordEntry(std::string word, int attempts, bool win) {
+        this->word = word;
+        this->attempts = attempts;
+        this->win = win;
+    }
+
     std::string getWin() {
         if (win) {
             return "Yes";
@@ -23,21 +29,13 @@ struct WordEntry {
 
 struct Stat {
     int timesPlayed;
-    int avgAttempts;
-    float winPercent;
+    int wins;
     int curStreak;
     int longestStreak;
     std::vector<WordEntry> wEntries;
     
     Stat() {
 
-    }
-
-    Stat(int tPlayed, int avgAttempts, int winPercent, int curStreak, int longestStreak) {
-        timesPlayed = tPlayed;
-        this->avgAttempts = avgAttempts;
-        this->curStreak = curStreak;
-        this->longestStreak = longestStreak;
     }
 
     std::string toString(int lWidth) {
@@ -47,8 +45,15 @@ struct Stat {
         ss << std::setfill(' ') << std::setw(4) << "" << std::setw(lWidth - 4) << "STATISTICS SUMMARY" << std::endl;
         ss << std::setfill('=') << std::setw(lWidth) << "" << std::endl << std::setfill(' ');
         ss << std::setw(lWidth) << std::setfill(' ') << std::left << "Times Played:" << std::right << timesPlayed;
-        ss << std::setw(lWidth) << std::setfill(' ') << std::left << "Average Attempts:" << std::right << avgAttempts;
-        float winPerc = (float) (avgAttempts * 100) / timesPlayed; 
+
+        int sumAttempts = 0;
+        for (auto& e : wEntries) {
+            sumAttempts += e.attempts;
+        }
+
+        int avgAttempts = sumAttempts / wEntries.size();
+        ss << std::setw(lWidth) << std::setfill(' ') << std::left << "Average Attempts:" << std::right << avgAttempts << std::endl;
+        float winPerc = (float) wins / wEntries.size();
         ss << std::setw(lWidth) << std::setfill(' ') << std::left << "Win Percentage:" << std::right << std::setprecision(3) << winPerc << "%" << std::endl;
         ss << std::setw(lWidth) << std::setfill(' ') << std::left << "Current Streak:" << std::right << curStreak;
         ss << std::setw(lWidth) << std::setfill(' ') << std::left << "Longest Streak:" << std::right << longestStreak;
@@ -91,19 +96,17 @@ struct Stat {
             std::string category = values[0];
             if (category == "tPlayed") {
                 timesPlayed = std::stoi(values[1]);
-            } else if (category == "avgAttempts") {
-                avgAttempts = std::stoi(values[1]);
-            } else if (category == "winPercent") {
-                winPercent = std::stof(values[1]);
+            } else if (category == "wins") {
+                wins = std::stoi(values[1]);
             } else if (category == "curStreak") {
                 curStreak = std::stoi(values[1]);
             } else if (category == "longStreak") {
                 longestStreak = std::stoi(values[1]);
             } else if (category == "w") {
-                WordEntry* w = new WordEntry;
-                w->word = std::stoi(values[1]);
-                w->attempts = std::stoi(values[2]);
-                w->win = std::stoi(values[3]);
+                std::string word = values[1];
+                int attempts = std::stoi(values[2]);
+                bool win = std::stoi(values[3]);
+                WordEntry* w = new WordEntry(word, attempts, win);
                 wEntries.push_back(*w);
             }
         }
@@ -115,9 +118,7 @@ struct Stat {
         std::ofstream ofs;
         ofs.open("statistics.txt", std::fstream::trunc);
         ofs << "tPlayed" << "," << timesPlayed << std::endl;
-        ofs << "avgAttempts" << "," << avgAttempts << std::endl;
-        float winPerc = (float) (avgAttempts) / timesPlayed;
-        ofs << "winPercent" << "," << std::setprecision(3) << winPerc << std::endl;
+        ofs << "wins" << "," << wins << std::endl;
         ofs << "curStreak" << "," << curStreak << std::endl;
         ofs << "longStreak" << "," << longestStreak << std::endl;
         for (auto& v : wEntries) {
@@ -129,7 +130,7 @@ struct Stat {
 
     void reset() {
         std::ofstream ofs;
-        ofs.open("stats.txt");
+        ofs.open("statistics.txt", std::fstream::trunc);
         ofs.close();
     }
 };

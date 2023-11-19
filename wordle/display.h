@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include "statistics.h"
+#include "wordle.h"
 #define LINE_WIDTH_1 26
 #define LINE_WIDTH_2 46
 #define WHITE 1
@@ -73,6 +74,13 @@ void displayGuess(std::ostream& os, std::string guess, std::vector<int> colors) 
     os << std::endl;
 }
 
+void enterKeyEvent(std::istream& is, std::ostream& os) {
+    os << "Press [enter] to continue" << std::endl;
+    std::string input;
+    std::getline(is, input);
+    
+}
+
 void instrMenu(std::ostream& os, std::istream& is) {
     os << std::setfill('=') << std::setw(LINE_WIDTH_2) << "" << std::endl;
     os << std::setfill(' ') << std::setw(18) << "" << std::setw(LINE_WIDTH_2 - 18) << "HOW TO PLAY" << std::endl; 
@@ -98,18 +106,6 @@ void instrMenu(std::ostream& os, std::istream& is) {
     os << std::endl;
     enterKeyEvent(is, os);
 }
-
-void enterKeyEvent(std::istream& is, std::ostream& os) {
-    os << "Press [enter] to continue" << std::endl;
-    std::string input;
-    bool isEmpty = false;
-    while (!isEmpty) {
-        std::getline(std::cin, input);
-        if (input.length() == 0) {
-            isEmpty = true;
-        }
-    }
-} 
 
 int optionMenu(std::ostream& os, std::istream& is) {
     os << std::setfill('=') << std::setw(LINE_WIDTH_1) << "" << std::endl << std::setfill(' ');
@@ -140,13 +136,15 @@ std::string toUpper(std::string in) {
     return result;
 }
 
-void wordleGame(std::ostream& os, std::istream& is, std::vector<std::string> words, std::vector<std::string> allowed,  Stat* wStats) {
-    std::string chosenWordle = genWordle(words, RANDOM_NUM_BUCKETS);
-    os << "Enter your guess:" << std::endl;
+void wordleGame(std::ostream& os, std::istream& is, std::vector<std::string> words, std::vector<std::string> allowed, Stat* wStats) {
+    std::string chosenWordle = genWordle(words);
+    os << chosenWordle << std::endl;
+    wStats->timesPlayed++;
     bool win = false;
     int attempts = 0;
     while (attempts < 6 && !win) {
         std::string guess;
+        os << "Enter your guess:" << std::endl;
         std::getline(is, guess);
         bool isValid = checkValidGuess(allowed, guess);
         if (!isValid) {
@@ -165,12 +163,26 @@ void wordleGame(std::ostream& os, std::istream& is, std::vector<std::string> wor
     }
 
     if (win) {
-        os << std::endl << "Splendid!";
+        os << std::endl << "Splendid!" << std::endl;
+        wStats->curStreak += 1;
+        wStats->longestStreak += 1;
     } else {
+        if (wStats->curStreak > 0) {
+            if (wStats->curStreak > wStats->longestStreak) {
+                wStats->longestStreak = wStats->curStreak;
+            }
+
+            wStats->curStreak = 0;
+        }
+
         os << "The word was: " << toUpper(chosenWordle) << std::endl;
         os << std::endl << std::endl << "Better luck next time!" << std::endl << std::endl;
     }
 
+
+    wStats->save();
+    WordEntry ent(chosenWordle, attempts, win);
+    wStats->wEntries.push_back(ent);
     enterKeyEvent(is, os);
 }
 #endif

@@ -4,7 +4,13 @@
 #include <iostream>
 #include <fstream>
 #include "display.h"
+#define WHITE 1
+#define YELLOW 2
+#define GREEN 3
+#define GRAY 4
+#define RESET 0
 #define VALID_WORDS_FILE "words.txt"
+#define VALID_GUESSES_FILE "allowed.txt"
 
 #ifndef WORDLE_H
 #define WORDLE_H
@@ -81,34 +87,37 @@ std::string genWordle(std::vector<std::string> wordList, int n) {
     return randWords[selectRandIdx];
 }
 
-void loadWords(std::vector<std::string> words, std::vector<std::string> allowed) {
-    std::ifstream ifs;
-    ifs.open("words.txt");
+std::string genWordle(std::vector<std::string> wordList) {
+    int randIdx = rand() % wordList.size();
+    return wordList[randIdx];
+}
 
-    if (!ifs.is_open()) {
+void loadWords(std::vector<std::string> words, std::vector<std::string> allowed) {
+    std::ifstream ifs1;
+    ifs1.open(VALID_WORDS_FILE);
+
+    if (!ifs1.is_open()) {
         return;
     }
 
     std::string wd;
-    while (std::getline(ifs, wd, '\n')) {
+    while (std::getline(ifs1, wd, '\n')) {
         words.push_back(wd);
     }
 
-    ifs.close();
+    ifs1.close();
 
-    std::ifstream ifs;
-    ifs.open("allowed.txt", std::fstream::trunc);
-
-    if (!ifs.is_open()) {
+    std::ifstream ifs2;
+    ifs2.open(VALID_GUESSES_FILE, std::fstream::trunc);
+    if (!ifs2.is_open()) {
         return;
     }
 
-    std::string wd;
-    while (std::getline(ifs, wd, '\n')) {
+    while (std::getline(ifs2, wd, '\n')) {
         allowed.push_back(wd);
     }
 
-    ifs.close();
+    ifs2.close();
 }
 
 void writeOutput(std::string guess, std::vector<int> colors) {

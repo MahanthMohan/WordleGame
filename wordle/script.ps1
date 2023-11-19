@@ -1,10 +1,7 @@
-function compile([string]$outFile) {
-    g++ main.cpp -o -SuppressWarnings $outFile
-}
-
 function run() {
-    compile("keyboard")
-    .\keyboard
+    g++ main.cpp -o -SuppressWarnings wordle
+    compile("wordle")
+    .\wordle
 }
 
 run

@@ -76,6 +76,32 @@ void displayGuess(std::ostream& os, std::string guess, std::vector<int> colors) 
     os << std::endl;
 }
 
+std::vector<std::vector<std::string>> readWordleOutput() {
+    std::ifstream ifs;
+    std::vector<std::vector<std::string>> wleOutput;
+    ifs.open("C:\\Users\\mohan\\Documents\\cse024\\exercise-1\\wordle\\interface.txt");
+
+    if (!ifs.is_open()) {
+        return wleOutput;
+    }
+
+    std::string line;
+    while (std::getline(ifs, line, '\n')) {
+        std::istringstream lss(line);
+        std::string temp;
+        std::vector<std::string> hltChar;
+        while (std::getline(lss, temp, ',')) {
+            hltChar.push_back(temp);
+        }
+
+        wleOutput.push_back(hltChar);
+    }
+
+    ifs.close();
+
+    return wleOutput;
+}
+
 void display(std::ostream& os) {
     std::vector<std::vector<std::string>> wordleOutput = readWordleOutput();
     int char_counter = 0;
@@ -102,32 +128,6 @@ void display(std::ostream& os) {
 
         displayGuess(os, kline, line_colors);
     }
-}
-
-std::vector<std::vector<std::string>> readWordleOutput() {
-    std::ifstream ifs;
-    ifs.open("interface.txt");
-
-    if (!ifs.is_open()) {
-        return;
-    }
-
-    std::string line;
-    std::vector<std::vector<std::string>> wleOutput;
-    while (std::getline(ifs, line, '\n')) {
-        std::istringstream lss(line);
-        std::string temp;
-        std::vector<std::string> hltChar;
-        while (std::getline(lss, temp, ',')) {
-            hltChar.push_back(temp);
-        }
-
-        wleOutput.push_back(hltChar);
-    }
-
-    ifs.close();
-
-    return wleOutput;
 }
 
 #endif
