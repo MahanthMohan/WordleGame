@@ -1,5 +1,5 @@
 # Wordle Game
-![logo](wordle.png)
+![logo](wordle.png)\
 A C++ implementation of the popular Wordle game created by the New York Times. It allows the user to make upto 6 guesses for a randomly generated 5 letter word.
 ## Key Features
  -  Highlighting characters depending on their position in the word and checking for a win.
